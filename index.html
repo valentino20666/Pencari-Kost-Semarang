@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KosHub - Cari Kos Impianmu</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-home"></i>
+                <span>KosHub</span>
+            </div>
+            <nav class="nav">
+                <a href="#beranda">Beranda</a>
+                <a href="#cari">Cari Kos</a>
+                <a href="#tentang">Tentang</a>
+                <a href="#kontak">Kontak</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="beranda">
+        <div class="hero-content">
+            <h1>Temukan Kos Impianmu</h1>
+            <p>Cari kos terbaik dengan mudah dan cepat</p>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Cari lokasi, harga, atau fasilitas...">
+                <button onclick="searchKos()"><i class="fas fa-search"></i> Cari</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filter Section -->
+    <section class="filter-section" id="cari">
+        <div class="container">
+            <h2>Filter Pencarian</h2>
+            <div class="filter-grid">
+                <div class="filter-item">
+                    <label for="filterLokasi">Lokasi</label>
+                    <select id="filterLokasi" onchange="applyFilters()">
+                        <option value="">Semua Lokasi</option>
+                        <option value="depok">Depok</option>
+                        <option value="jakarta">Jakarta</option>
+                        <option value="bogor">Bogor</option>
+                        <option value="tangerang">Tangerang</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="filterHarga">Harga Maksimal</label>
+                    <select id="filterHarga" onchange="applyFilters()">
+                        <option value="">Semua Harga</option>
+                        <option value="500000">Rp 500.000</option>
+                        <option value="1000000">Rp 1.000.000</option>
+                        <option value="1500000">Rp 1.500.000</option>
+                        <option value="2000000">Rp 2.000.000</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="filterFasilitas">Fasilitas</label>
+                    <select id="filterFasilitas" onchange="applyFilters()">
+                        <option value="">Semua Fasilitas</option>
+                        <option value="wifi">WiFi</option>
+                        <option value="ac">AC</option>
+                        <option value="kamar-mandi">Kamar Mandi Pribadi</option>
+                        <option value="dapur">Dapur</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="filterJenisKamar">Jenis Kamar</label>
+                    <select id="filterJenisKamar" onchange="applyFilters()">
+                        <option value="">Semua Jenis</option>
+                        <option value="1">Kamar Mandi Pribadi</option>
+                        <option value="2">Kamar Mandi Bersama</option>
+                        <option value="3">Studio</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn-reset" onclick="resetFilters()">Reset Filter</button>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="results-section">
+        <div class="container">
+            <h2>Hasil Pencarian</h2>
+            <div class="stats">
+                <p>Ditemukan <span id="resultCount">0</span> kos</p>
+            </div>
+            <div id="kosGrid" class="kos-grid">
+                <!-- Hasil akan ditampilkan di sini -->
+                <div class="empty-state">
+                    <i class="fas fa-search"></i>
+                    <p>Mulai pencarian atau filter untuk menemukan kos</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about-section" id="tentang">
+        <div class="container">
+            <h2>Tentang KosHub</h2>
+            <p>KosHub adalah platform pencarian kos yang memudahkan Anda menemukan tempat tinggal terbaik sesuai kebutuhan dan budget. Dengan fitur filter lengkap dan antarmuka yang user-friendly, pencarian kos menjadi lebih efisien.</p>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section" id="kontak">
+        <div class="container">
+            <h2>Hubungi Kami</h2>
+            <div class="contact-info">
+                <div class="contact-item">
+                    <i class="fas fa-phone"></i>
+                    <span>+62 812-3456-7890</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>info@koshub.com</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Jakarta, Indonesia</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 KosHub. Semua hak dilindungi.</p>
+        </div>
+    </footer>
+
+    <!-- Modal Detail Kos -->
+    <div id="kosModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalBody">
+                <!-- Detail kos akan ditampilkan di sini -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
