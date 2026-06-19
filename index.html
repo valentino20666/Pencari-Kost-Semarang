@@ -129,6 +129,9 @@
                 <div class="saved-header">
                     <h3>Kos yang Disimpan</h3>
                     <span id="savedCount">0</span> kos disimpan
+                    <button id="compareBtn" class="btn-compare" onclick="openCompareModal()" style="display: none;">
+                        <i class="fas fa-balance-scale"></i> Bandingkan
+                    </button>
                 </div>
                 <div id="savedGrid" class="saved-grid">
                     <div class="empty-state">
@@ -189,6 +192,16 @@
             <span class="close" onclick="closeModal()">&times;</span>
             <div id="modalBody">
                 <!-- Detail kos akan ditampilkan di sini -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Perbandingan Kos -->
+    <div id="compareModal" class="modal">
+        <div class="modal-content modal-compare-content">
+            <span class="close" onclick="closeCompareModal()">&times;</span>
+            <div id="compareBody">
+                <!-- Tabel perbandingan akan ditampilkan di sini -->
             </div>
         </div>
     </div>
