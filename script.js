@@ -928,6 +928,7 @@ function displayResults() {
 function displaySaved() {
     const savedGrid = document.getElementById('savedGrid');
     const savedCount = document.getElementById('savedCount');
+    const compareBtn = document.getElementById('compareBtn');
     const savedKos = kosData.filter(kos => isSaved(kos.id));
 
     savedCount.textContent = savedKos.length;
@@ -939,7 +940,14 @@ function displaySaved() {
                 <p>Belum ada kos yang disimpan. Klik ikon simpan pada kos yang menarik.</p>
             </div>
         `;
+        compareBtn.style.display = 'none';
         return;
+    }
+
+    if (savedKos.length >= 2) {
+        compareBtn.style.display = 'inline-block';
+    } else {
+        compareBtn.style.display = 'none';
     }
 
     savedGrid.innerHTML = savedKos.map(kos => `
@@ -1091,14 +1099,6 @@ function hubungiPemilik(nomor) {
     window.open(`https://wa.me/${cleanNumber}`, '_blank');
 }
 
-// Close modal ketika klik di luar modal
-window.onclick = function(event) {
-    const modal = document.getElementById('kosModal');
-    if (event.target === modal) {
-        modal.style.display = 'none';
-    }
-};
-
 function renderStars(rating) {
     const fullStars = Math.floor(rating);
     const hasHalf = rating % 1 >= 0.5;
@@ -1111,3 +1111,231 @@ function renderStars(rating) {
     }
     return output;
 }
+
+// ==================== FITUR PERBANDINGAN KOS ====================
+
+let selectedForCompare = new Set();
+const compareKey = 'koshubCompareSelection';
+
+function loadCompareSelection() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(compareKey) || '[]');
+        selectedForCompare = new Set(Array.isArray(saved) ? saved.map(Number) : []);
+    } catch (error) {
+        selectedForCompare = new Set();
+    }
+}
+
+function saveCompareSelection() {
+    localStorage.setItem(compareKey, JSON.stringify([...selectedForCompare]));
+}
+
+function updateCompareModalActions() {
+    const compareBtn = document.querySelector('.btn-compare-show');
+    if (!compareBtn) return;
+    compareBtn.innerHTML = `<i class="fas fa-balance-scale"></i> Tampilkan Perbandingan (${selectedForCompare.size})`;
+    compareBtn.disabled = selectedForCompare.size < 2;
+}
+
+function renderCompareSelection() {
+    const compareBody = document.getElementById('compareBody');
+    const savedKos = kosData.filter(kos => isSaved(kos.id));
+
+    let html = `
+        <h2>Pilih Kos untuk Dibandingkan</h2>
+        <p style="color: #64748b; margin-bottom: 1rem;">Pilih 2-4 kos untuk dibandingkan (maksimal 4 kos)</p>
+        <div class="compare-selection-grid">
+    `;
+
+    savedKos.forEach(kos => {
+        const isSelected = selectedForCompare.has(kos.id);
+        html += `
+            <div class="compare-selection-card ${isSelected ? 'selected' : ''}">
+                <input type="checkbox" 
+                       id="select-${kos.id}" 
+                       ${isSelected ? 'checked' : ''}
+                       onchange="toggleCompareSelection(${kos.id})">
+                <label for="select-${kos.id}">
+                    <img src="${kos.image}" alt="${kos.nama}">
+                    <h4>${kos.nama}</h4>
+                    <p>${kos.lokasi}</p>
+                    <p style="font-weight: bold; color: var(--primary-color);">Rp ${formatHarga(kos.harga)}</p>
+                </label>
+            </div>
+        `;
+    });
+
+    html += `
+        </div>
+        <div class="compare-buttons">
+            <button class="btn-compare-show" 
+                    onclick="showComparison()"
+                    ${selectedForCompare.size < 2 ? 'disabled' : ''}>
+                <i class="fas fa-balance-scale"></i> Tampilkan Perbandingan (${selectedForCompare.size})
+            </button>
+            <button class="btn-cancel" onclick="closeCompareModal()">
+                Tutup
+            </button>
+        </div>
+    `;
+
+    compareBody.innerHTML = html;
+}
+
+function toggleCompareSelection(kosId) {
+    if (selectedForCompare.has(kosId)) {
+        selectedForCompare.delete(kosId);
+    } else {
+        if (selectedForCompare.size < 4) {
+            selectedForCompare.add(kosId);
+        } else {
+            alert('Maksimal bandingkan 4 kos sekaligus');
+            return;
+        }
+    }
+    saveCompareSelection();
+    displaySaved();
+    if (document.getElementById('compareModal').style.display === 'block') {
+        renderCompareSelection();
+    }
+}
+
+function openCompareModal() {
+    const savedKos = kosData.filter(kos => isSaved(kos.id));
+    
+    if (savedKos.length === 0) {
+        alert('Tidak ada kos yang disimpan untuk dibandingkan');
+        return;
+    }
+
+    renderCompareSelection();
+    document.getElementById('compareModal').style.display = 'block';
+}
+
+function showComparison() {
+    if (selectedForCompare.size < 2) {
+        alert('Pilih minimal 2 kos untuk dibandingkan');
+        return;
+    }
+
+    const selectedKos = kosData.filter(kos => selectedForCompare.has(kos.id));
+    const compareBody = document.getElementById('compareBody');
+
+    let html = `
+        <button class="btn-back" onclick="openCompareModal()">
+            <i class="fas fa-arrow-left"></i> Kembali ke Pilihan
+        </button>
+        <h2>Perbandingan Kos</h2>
+        <div class="compare-table-wrapper">
+            <table class="compare-table">
+                <thead>
+                    <tr>
+                        <th>Aspek</th>
+                        ${selectedKos.map(kos => `<th>${kos.nama}</th>`).join('')}
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="compare-label"><strong>Lokasi</strong></td>
+                        ${selectedKos.map(kos => `<td>${kos.lokasi}</td>`).join('')}
+                    </tr>
+                    <tr>
+                        <td class="compare-label"><strong>Jenis Kos</strong></td>
+                        ${selectedKos.map(kos => `<td>${kos.jenis}</td>`).join('')}
+                    </tr>
+                    <tr class="compare-highlight">
+                        <td class="compare-label"><strong>Harga</strong></td>
+                        ${selectedKos.map(kos => `<td>Rp ${formatHarga(kos.harga)}</td>`).join('')}
+                    </tr>
+                    <tr>
+                        <td class="compare-label"><strong>Rating</strong></td>
+                        ${selectedKos.map(kos => `<td>${renderStars(kos.rating)} ${kos.rating}/5</td>`).join('')}
+                    </tr>
+                    <tr>
+                        <td class="compare-label"><strong>Jumlah Ulasan</strong></td>
+                        ${selectedKos.map(kos => `<td>${kos.ulasan} ulasan</td>`).join('')}
+                    </tr>
+                    <tr>
+                        <td class="compare-label"><strong>Fasilitas</strong></td>
+                        ${selectedKos.map(kos => `<td>${kos.fasilitas.join(', ')}</td>`).join('')}
+                    </tr>
+                    <tr>
+                        <td class="compare-label"><strong>Biaya Termasuk</strong></td>
+                        ${selectedKos.map(kos => `<td>${kos.biayaTermasuk.join(', ')}</td>`).join('')}
+                    </tr>
+                    <tr>
+                        <td class="compare-label"><strong>Jarak FISIP UNDIP</strong></td>
+                        ${selectedKos.map(kos => {
+                            const fisip = kos.fakultas.find(f => f.nama === 'FISIP UNDIP');
+                            return `<td>${fisip ? fisip.jalanKaki + ' (jalan), ' + fisip.motor + ' (motor)' : 'N/A'}</td>`;
+                        }).join('')}
+                    </tr>
+                    <tr>
+                        <td class="compare-label"><strong>Jarak FH UNDIP</strong></td>
+                        ${selectedKos.map(kos => {
+                            const fh = kos.fakultas.find(f => f.nama === 'FH UNDIP');
+                            return `<td>${fh ? fh.jalanKaki + ' (jalan), ' + fh.motor + ' (motor)' : 'N/A'}</td>`;
+                        }).join('')}
+                    </tr>
+                    <tr>
+                        <td class="compare-label"><strong>Deskripsi</strong></td>
+                        ${selectedKos.map(kos => `<td>${kos.deskripsi}</td>`).join('')}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="compare-cards">
+    `;
+
+    selectedKos.forEach(kos => {
+        html += `
+            <div class="compare-detail-card">
+                <img src="${kos.image}" alt="${kos.nama}">
+                <h3>${kos.nama}</h3>
+                <p class="compare-price">Rp ${formatHarga(kos.harga)}/bulan</p>
+                <p>${kos.lokasi}</p>
+                <button class="btn-detail" onclick="showModal(${kos.id})">Lihat Detail Lengkap</button>
+                <button class="btn-contact" onclick="hubungiPemilik('${kos.whatsapp}')">
+                    <i class="fab fa-whatsapp"></i> Hubungi
+                </button>
+            </div>
+        `;
+    });
+
+    html += `
+        </div>
+        <div class="compare-buttons" style="margin-top: 2rem;">
+            <button class="btn-back" onclick="openCompareModal()">
+                <i class="fas fa-arrow-left"></i> Ubah Pilihan
+            </button>
+            <button class="btn-cancel" onclick="closeCompareModal()">
+                Tutup
+            </button>
+        </div>
+    `;
+
+    compareBody.innerHTML = html;
+}
+
+function closeCompareModal() {
+    document.getElementById('compareModal').style.display = 'none';
+    selectedForCompare.clear();
+    saveCompareSelection();
+}
+
+// Close compare modal ketika klik di luar modal
+window.onclick = function(event) {
+    const modal = document.getElementById('kosModal');
+    const compareModal = document.getElementById('compareModal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+    if (event.target === compareModal) {
+        compareModal.style.display = 'none';
+    }
+};
+
+// Load compare selection saat halaman dimuat
+document.addEventListener('DOMContentLoaded', function() {
+    loadCompareSelection();
+});
