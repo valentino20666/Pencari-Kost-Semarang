@@ -763,6 +763,8 @@ kosData.forEach(kos => {
 
 // State
 let filteredData = [];
+let savedKosIds = new Set();
+const savedKosKey = 'koshubSavedKos';
 let currentFilter = {
     lokasi: '',
     harga: '',
@@ -771,9 +773,43 @@ let currentFilter = {
     search: ''
 };
 
+function loadSavedKos() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(savedKosKey) || '[]');
+        savedKosIds = new Set(Array.isArray(saved) ? saved : []);
+    } catch (error) {
+        savedKosIds = new Set();
+    }
+}
+
+function saveSavedKos() {
+    localStorage.setItem(savedKosKey, JSON.stringify([...savedKosIds]));
+}
+
+function isSaved(kosId) {
+    return savedKosIds.has(kosId);
+}
+
+function toggleKeep(kosId) {
+    if (isSaved(kosId)) {
+        savedKosIds.delete(kosId);
+    } else {
+        savedKosIds.add(kosId);
+    }
+    saveSavedKos();
+    displayResults();
+    displaySaved();
+    const modal = document.getElementById('kosModal');
+    if (modal.style.display === 'block') {
+        showModal(kosId);
+    }
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
+    loadSavedKos();
     applyFilters();
+    displaySaved();
 });
 
 // Search Function
@@ -855,6 +891,11 @@ function displayResults() {
 
     kosGrid.innerHTML = filteredData.map(kos => `
         <div class="kos-card" onclick="showModal(${kos.id})">
+            <button class="btn-keep ${isSaved(kos.id) ? 'saved' : ''}"
+                    onclick="event.stopPropagation(); toggleKeep(${kos.id})">
+                <i class="fas fa-bookmark"></i>
+                ${isSaved(kos.id) ? 'Tersimpan' : 'Simpan'}
+            </button>
             <div class="kos-image">
                 <img src="${kos.image}" alt="Foto kamar ${kos.nama}">
             </div>
@@ -880,6 +921,32 @@ function displayResults() {
                     </button>
                 </div>
             </div>
+        </div>
+    `).join('');
+}
+
+function displaySaved() {
+    const savedGrid = document.getElementById('savedGrid');
+    const savedCount = document.getElementById('savedCount');
+    const savedKos = kosData.filter(kos => isSaved(kos.id));
+
+    savedCount.textContent = savedKos.length;
+
+    if (savedKos.length === 0) {
+        savedGrid.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-bookmark"></i>
+                <p>Belum ada kos yang disimpan. Klik ikon simpan pada kos yang menarik.</p>
+            </div>
+        `;
+        return;
+    }
+
+    savedGrid.innerHTML = savedKos.map(kos => `
+        <div class="saved-card" onclick="showModal(${kos.id})">
+            <h4>${kos.nama}</h4>
+            <p>${kos.lokasi} • Rp ${formatHarga(kos.harga)}</p>
+            <button onclick="event.stopPropagation(); toggleKeep(${kos.id})">Hapus Simpanan</button>
         </div>
     `).join('');
 }
@@ -972,6 +1039,10 @@ function showModal(kosId) {
         </div>
 
         <div class="modal-buttons">
+            <button class="btn-keep-modal ${isSaved(kos.id) ? 'saved' : ''}" onclick="toggleKeep(${kos.id})">
+                <i class="fas fa-bookmark"></i>
+                ${isSaved(kos.id) ? 'Tersimpan' : 'Simpan'}
+            </button>
             <button class="btn-contact" onclick="hubungiPemilik('${kos.whatsapp}')">
                 <i class="fab fa-whatsapp"></i> Hubungi via WhatsApp
             </button>

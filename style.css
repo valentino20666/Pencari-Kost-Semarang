@@ -247,7 +247,115 @@ body {
     color: var(--primary-color);
 }
 
-.kos-grid {
+.saved-section {
+    background: #f8fafc;
+    border: 1px dashed var(--border-color);
+    padding: 20px;
+    border-radius: 16px;
+    margin-bottom: 30px;
+}
+
+.saved-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.saved-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--text-dark);
+}
+
+.saved-header span {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.saved-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+}
+
+.saved-card {
+    background: white;
+    border-radius: 14px;
+    padding: 18px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+}
+
+.saved-card h4 {
+    margin-bottom: 10px;
+    font-size: 1rem;
+    color: var(--text-dark);
+}
+
+.saved-card p {
+    color: var(--text-light);
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+}
+
+.saved-card button {
+    background: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-keep {
+    border: none;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--text-dark);
+    padding: 10px 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-keep:hover {
+    background: white;
+    transform: translateY(-1px);
+}
+
+.btn-keep.saved {
+    background: var(--secondary-color);
+    color: white;
+}
+
+.btn-keep-modal {
+    background: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-keep-modal.saved {
+    background: var(--dark-bg);
+}
+
+.kos-card {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 30px;
@@ -260,6 +368,7 @@ body {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: pointer;
+    position: relative;
 }
 
 .kos-card:hover {
